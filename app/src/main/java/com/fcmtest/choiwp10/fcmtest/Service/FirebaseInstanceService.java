@@ -51,6 +51,7 @@ public class FirebaseInstanceService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
         notificationBuilder.setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_ALL)
+                .setSmallIcon(R.drawable.ic_noticifation)
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle(title)
                 .setContentText(body)
