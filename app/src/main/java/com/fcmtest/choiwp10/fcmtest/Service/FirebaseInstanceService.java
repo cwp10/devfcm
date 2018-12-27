@@ -13,6 +13,7 @@ import com.fcmtest.choiwp10.fcmtest.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Map;
 import java.util.Random;
 
 public class FirebaseInstanceService extends FirebaseMessagingService {
@@ -22,8 +23,12 @@ public class FirebaseInstanceService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-
-        showNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
+        
+        if (remoteMessage.getData().isEmpty()) {
+            showNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
+        } else {
+            showNotification(remoteMessage.getData());
+        }
     }
 
     @Override
@@ -34,8 +39,18 @@ public class FirebaseInstanceService extends FirebaseMessagingService {
     }
 
     private void showNotification(String title, String body) {
+        setNotificationContent(title, body);
+    }
+
+    private void showNotification(Map<String,String> data) {
+        String title = data.get("title").toString();
+        String body = data.get("body").toString();
+        setNotificationContent(title, body);
+    }
+
+    private void setNotificationContent(String title, String body) {
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        String NOTIFICATION_CHANNEL_ID = "androidfcm.test";
+        String NOTIFICATION_CHANNEL_ID = "com.fcmtest.choiwp10.fcmtest";
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "Notification", NotificationManager.IMPORTANCE_DEFAULT);
