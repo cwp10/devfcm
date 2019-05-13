@@ -6,15 +6,23 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.fcmtest.choiwp10.fcmtest.R;
+import com.fcmtest.choiwp10.fcmtest.Util.HttpRequest;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Map;
 import java.util.Random;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.telephony.TelephonyManager;
 
 public class FirebaseInstanceService extends FirebaseMessagingService {
 
@@ -34,8 +42,29 @@ public class FirebaseInstanceService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String s) {
         super.onNewToken(s);
-
         Log.d(TAG, s);
+
+        TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        String uuid = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("uuid", uuid);
+            json.put("registerKey", s);
+            json.put("platform", "android");
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        Log.d(TAG, json.toString());
+
+        HttpRequest.getInstance(getApplicationContext()).httpPost("http://192.168.1.135:3000" + "/api/devices", json, new HttpRequest.HttpResponseCallback() {
+            @Override
+            public void onCallback(Boolean success, JSONObject jsonData) {
+                Log.d(TAG, jsonData.toString());
+            }
+        });
     }
 
     private void showNotification(String title, String body) {
